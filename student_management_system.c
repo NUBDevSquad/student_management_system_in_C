@@ -1,15 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
-struct student
+#include <string.h>
+
+FILE *fp;
+struct student_object
 {
     int roll;
     char first_name[50];
     char last_name[50];
     char department[50];
-    char courses[50];
+    char course[50];
     char semester[50];
     char section[50];
-} students[50];
+} student;
+
+void add_student(void);
 
 int main()
 {
@@ -24,7 +29,7 @@ int main()
         printf("3.Find By Roll\n");
         printf("4.Find By First Name\n");
         printf("5.Total Students\n");
-        printf("6.UPdate Student\n");
+        printf("6.Update Student\n");
         printf("7.Delete Student\n");
         printf("0.Exit\n\n");
         printf("Enter your choice: ");
@@ -33,31 +38,31 @@ int main()
         switch (input)
         {
         case 1:
-            printf("Add student");
+            add_student();
             break;
 
         case 2:
-            printf("Add student");
+            printf("Student List");
             break;
 
         case 3:
-            printf("Add student");
+            printf("Find By Roll");
             break;
 
         case 4:
-            printf("Add student");
+            printf("Find By First Name");
             break;
 
         case 5:
-            printf("Add student");
+            printf("Total Students");
             break;
 
         case 6:
-            printf("Add student");
+            printf("Update Student");
             break;
 
         case 7:
-            printf("Add student");
+            printf("Delete Student");
             break;
 
         default:
@@ -65,7 +70,49 @@ int main()
             break;
         }
         printf("\n\nPress Any Key To Continue...");
+        getchar();
     }
 
     return 0;
+}
+
+void add_student()
+{
+    printf("Add Student Details\n");
+    printf("----------------------------------\n");
+
+    // take input form the user
+    getchar();
+    printf("Enter the first name: ");
+    fgets(student.first_name, sizeof(student.first_name), stdin);
+    // Remove trailing newline character if it exists
+    student.first_name[strcspn(student.first_name, "\n")] = 0;
+
+    printf("Enter the last name: ");
+    fgets(student.last_name, sizeof(student.last_name), stdin);
+    student.last_name[strcspn(student.last_name, "\n")] = 0;
+
+    printf("Enter the roll number: ");
+    scanf("%d", &student.roll);
+    getchar();
+
+    printf("Enter the department name: ");
+    fgets(student.department, sizeof(student.department), stdin);
+    student.department[strcspn(student.department, "\n")] = 0;
+
+    printf("Enter the course id: ");
+    fgets(student.course, sizeof(student.course), stdin);
+    student.course[strcspn(student.course, "\n")] = 0;
+
+    printf("Enter the semester: ");
+    fgets(student.semester, sizeof(student.semester), stdin);
+    student.semester[strcspn(student.semester, "\n")] = 0;
+
+    printf("Enter the section: ");
+    fgets(student.section, sizeof(student.section), stdin);
+    student.section[strcspn(student.section, "\n")] = 0;
+
+    printf("\nFirst name: %s, last name: %s, roll: %d, department: %s, course: %s, semester: %s, section %s.", student.first_name, student.last_name, student.roll, student.department, student.course, student.semester, student.section);
+
+    printf("\nStudent Added Successfully");
 }
