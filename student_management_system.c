@@ -78,10 +78,18 @@ int main()
 
 void add_student()
 {
+    //  opens the file name student in append binary mode
+    fp = fopen("student.txt", "ab");
+    if (fp == NULL)
+    {
+        printf("Error opening file\n");
+        exit(1);
+    }
+
     printf("Add Student Details\n");
     printf("----------------------------------\n");
 
-    // take input form the user
+    //  take input form the user
     getchar();
     printf("Enter the first name: ");
     fgets(student.first_name, sizeof(student.first_name), stdin);
@@ -115,4 +123,10 @@ void add_student()
     printf("\nFirst name: %s, last name: %s, roll: %d, department: %s, course: %s, semester: %s, section %s.", student.first_name, student.last_name, student.roll, student.department, student.course, student.semester, student.section);
 
     printf("\nStudent Added Successfully");
+
+    //  writes the data pointed to by &student to the file referenced by fp
+    fwrite(&student, sizeof(student), 1, fp);
+
+    //  closes the file
+    fclose(fp);
 }
