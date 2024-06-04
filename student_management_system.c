@@ -14,6 +14,15 @@ struct student_object
     char section[50];
 } student;
 
+void clear_screen()
+{
+#ifdef _WIN32
+    system("cls");
+#else
+    system("clear");
+#endif
+}
+
 void add_student(void);
 
 int main()
@@ -22,7 +31,7 @@ int main()
 
     while (1)
     {
-        system("cls");
+        clear_screen();
         printf("<== Student Management System ==>\n");
         printf("1.Add Student\n");
         printf("2.Student List\n");
@@ -86,7 +95,7 @@ void add_student()
         exit(1);
     }
 
-    printf("Add Student Details\n");
+    printf("\nAdd Student Details\n");
     printf("----------------------------------\n");
 
     //  take input form the user
