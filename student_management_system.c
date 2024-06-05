@@ -24,6 +24,7 @@ void clear_screen()
 }
 
 void add_student(void);
+void student_list();
 
 int main()
 {
@@ -32,16 +33,16 @@ int main()
     while (1)
     {
         clear_screen();
-        printf("<== Student Management System ==>\n");
-        printf("1.Add Student\n");
-        printf("2.Student List\n");
-        printf("3.Find By Roll\n");
-        printf("4.Find By First Name\n");
-        printf("5.Total Students\n");
-        printf("6.Update Student\n");
-        printf("7.Delete Student\n");
-        printf("0.Exit\n\n");
-        printf("Enter your choice: ");
+        printf(" <== Student Management System ==>\n");
+        printf(" 1.Add Student\n");
+        printf(" 2.Student List\n");
+        printf(" 3.Find By Roll\n");
+        printf(" 4.Find By First Name\n");
+        printf(" 5.Total Students\n");
+        printf(" 6.Update Student\n");
+        printf(" 7.Delete Student\n");
+        printf(" 0.Exit\n\n");
+        printf(" Enter your choice: ");
         scanf("%d", &input);
 
         switch (input)
@@ -51,7 +52,7 @@ int main()
             break;
 
         case 2:
-            printf("Student List");
+            student_list();
             break;
 
         case 3:
@@ -75,10 +76,10 @@ int main()
             break;
 
         default:
-            printf("Invalid Choice...\n\n");
+            printf(" Invalid Choice...\n\n");
             break;
         }
-        printf("\n\nPress Any Key To Continue...");
+        printf("\n\n Press Any Key To Continue...");
         getchar();
     }
 
@@ -91,51 +92,57 @@ void add_student()
     fp = fopen("student.txt", "ab");
     if (fp == NULL)
     {
-        printf("Error opening file\n");
+        printf(" Error opening file\n");
         exit(1);
     }
 
-    printf("\nAdd Student Details\n");
-    printf("----------------------------------\n");
+    printf("\n Add Student Details\n");
+    printf(" ----------------------------------\n");
 
     //  take input form the user
     getchar();
-    printf("Enter the first name: ");
+    printf(" Enter the first name: ");
     fgets(student.first_name, sizeof(student.first_name), stdin);
     // Remove trailing newline character if it exists
     student.first_name[strcspn(student.first_name, "\n")] = 0;
 
-    printf("Enter the last name: ");
+    printf(" Enter the last name: ");
     fgets(student.last_name, sizeof(student.last_name), stdin);
     student.last_name[strcspn(student.last_name, "\n")] = 0;
 
-    printf("Enter the roll number: ");
+    printf(" Enter the roll number: ");
     scanf("%d", &student.roll);
     getchar();
 
-    printf("Enter the department name: ");
+    printf(" Enter the department name: ");
     fgets(student.department, sizeof(student.department), stdin);
     student.department[strcspn(student.department, "\n")] = 0;
 
-    printf("Enter the course id: ");
+    printf(" Enter the course id: ");
     fgets(student.course, sizeof(student.course), stdin);
     student.course[strcspn(student.course, "\n")] = 0;
 
-    printf("Enter the semester: ");
+    printf(" Enter the semester: ");
     fgets(student.semester, sizeof(student.semester), stdin);
     student.semester[strcspn(student.semester, "\n")] = 0;
 
-    printf("Enter the section: ");
+    printf(" Enter the section: ");
     fgets(student.section, sizeof(student.section), stdin);
     student.section[strcspn(student.section, "\n")] = 0;
 
-    printf("\nFirst name: %s, last name: %s, roll: %d, department: %s, course: %s, semester: %s, section %s.", student.first_name, student.last_name, student.roll, student.department, student.course, student.semester, student.section);
+    printf("\n First name: %s, last name: %s, roll: %d, department: %s, course: %s, semester: %s, section %s.", student.first_name, student.last_name, student.roll, student.department, student.course, student.semester, student.section);
 
-    printf("\nStudent Added Successfully");
+    printf("\n Student Added Successfully");
 
     //  writes the data pointed to by &student to the file referenced by fp
     fwrite(&student, sizeof(student), 1, fp);
 
     //  closes the file
     fclose(fp);
+}
+
+void student_list()
+{
+    printf("\n Students List\n");
+    printf(" ----------------------------------\n");
 }
