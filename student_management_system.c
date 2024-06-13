@@ -25,6 +25,7 @@ void clear_screen()
 
 void add_student(void);
 void student_list();
+void update_a_student();
 
 int main()
 {
@@ -68,7 +69,7 @@ int main()
             break;
 
         case 6:
-            printf("Update Student");
+            update_a_student();
             break;
 
         case 7:
@@ -76,10 +77,14 @@ int main()
             break;
 
         default:
+            clear_screen();
             printf(" Invalid Choice...\n\n");
             break;
         }
-        printf("\n\n Press Any Key To Continue...");
+        printf("\n\n Press Any Key To Continue... \n");
+        // Clear newline character from scan
+        while ((getchar()) != '\n')
+            ;
         getchar();
     }
 
@@ -88,6 +93,7 @@ int main()
 
 void add_student()
 {
+    clear_screen();
     //  opens the file name student in append binary mode
     fp = fopen("student.txt", "ab");
     if (fp == NULL)
@@ -96,10 +102,10 @@ void add_student()
         exit(1);
     }
 
-    printf("\n Add Student Details\n");
+    printf("\n <== Add Student Details ==>\n");
     printf(" ----------------------------------\n");
 
-    //  take input form the user
+    //  take input from the user
     getchar();
     printf(" Enter the first name: ");
     fgets(student.first_name, sizeof(student.first_name), stdin);
@@ -143,6 +149,93 @@ void add_student()
 
 void student_list()
 {
-    printf("\n Students List\n");
+    printf("\n <== Students List ==>\n");
     printf(" ----------------------------------\n");
+}
+
+void update_a_student()
+{
+    clear_screen();
+    printf("\n <== Update Student Details ==>\n");
+    printf(" ----------------------------------\n\n");
+
+    int found = 0;
+    int student_roll;
+    printf("\n Enter student roll number: ");
+    scanf("%d", &student_roll);
+
+    // Open the file in read and write binary mode
+    fp = fopen("student.txt", "rb+");
+    if (fp == NULL)
+    {
+        printf("Error opening file\n");
+        exit(1);
+    }
+
+    // find student roll from student.txt
+    while (fread(&student, sizeof(student), 1, fp))
+    {
+        if (student.roll == student_roll)
+        {
+            found = 1;
+            break;
+        }
+    }
+
+    // if student found then update student details
+    if (found)
+    {
+        struct student_object updated_student;
+
+        printf("\n Enter updated student details\n");
+        printf("----------------------------------\n");
+
+        // take input from the user
+        getchar();
+        printf(" Enter the first name: ");
+        fgets(updated_student.first_name, sizeof(updated_student.first_name), stdin);
+        updated_student.first_name[strcspn(updated_student.first_name, "\n")] = 0;
+
+        printf(" Enter the last name: ");
+        fgets(updated_student.last_name, sizeof(updated_student.last_name), stdin);
+        updated_student.last_name[strcspn(updated_student.last_name, "\n")] = 0;
+
+        printf(" Enter the roll number: ");
+        scanf("%d", &updated_student.roll);
+        getchar();
+
+        printf(" Enter the department name: ");
+        fgets(updated_student.department, sizeof(updated_student.department), stdin);
+        updated_student.department[strcspn(updated_student.department, "\n")] = 0;
+
+        printf(" Enter the course id: ");
+        fgets(updated_student.course, sizeof(updated_student.course), stdin);
+        updated_student.course[strcspn(updated_student.course, "\n")] = 0;
+
+        printf(" Enter the semester: ");
+        fgets(updated_student.semester, sizeof(updated_student.semester), stdin);
+        updated_student.semester[strcspn(updated_student.semester, "\n")] = 0;
+
+        printf(" Enter the section: ");
+        fgets(updated_student.section, sizeof(updated_student.section), stdin);
+        updated_student.section[strcspn(updated_student.section, "\n")] = 0;
+
+        // remove current student from student.txt
+        fseek(fp, -sizeof(student), SEEK_CUR);
+        // updated student data
+        fwrite(&updated_student, sizeof(updated_student), 1, fp);
+        printf("\n Student details updated successfully.\n\n");
+
+        // showing update result data
+        printf(" %-10s %-15s %-15s %-15s %-15s %-15s %-15s \n", "Roll", "First Name", "Last Name", "Department", "Course", "Semester", "Section");
+        printf("-------------------------------------------------------------------------------------------------------------------\n");
+        printf(" %-10d %-15s %-15s %-15s %-15s %-15s %-15s \n", updated_student.roll, updated_student.first_name, updated_student.last_name, updated_student.department, updated_student.course, updated_student.semester, updated_student.section);
+    }
+    else
+    {
+        printf("\n Student with roll number %d not found. \n", student_roll);
+    }
+
+    // Close the file
+    fclose(fp);
 }
