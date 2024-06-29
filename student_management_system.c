@@ -353,5 +353,32 @@ void find_by_roll()
     fclose(fp);
 };
 
-void total_student() {};
+void total_student()
+{
+    clear_screen();
+    printf("\n <== Total Student Count ==>\n");
+    printf(" ----------------------------------\n\n");
+
+    int count = 0;
+
+    // Open the file in read binary mode
+    fp = fopen("student.txt", "rb");
+    if (fp == NULL)
+    {
+        printf("Error opening file\n");
+        exit(1);
+    }
+
+    // Count the number of students in student.txt
+    while (fread(&student, sizeof(student), 1, fp))
+    {
+        count++;
+    }
+
+    printf("\n We Have a Total of %d Students. \n", count);
+
+    // Close the file
+    fclose(fp);
+}
+
 void delete_student() {};
