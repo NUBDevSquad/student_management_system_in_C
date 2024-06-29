@@ -265,7 +265,52 @@ void update_a_student()
     fclose(fp);
 }
 
-void find_by_first_name() {};
+void find_by_first_name()
+{
+    clear_screen();
+    printf("\n <== Find Student Details By First Name ==>\n");
+    printf(" ----------------------------------\n\n");
+
+    int found = 0;
+    char first_name[50];
+
+    // takeing input from user
+    getchar();
+    printf(" Enter the first name: ");
+    fgets(first_name, sizeof(first_name), stdin);
+    first_name[strcspn(first_name, "\n")] = 0;
+
+    // Open the file in read and write binary mode
+    fp = fopen("student.txt", "rb+");
+    if (fp == NULL)
+    {
+        printf("Error opening file\n");
+        exit(1);
+    }
+
+    // find student from student.txt using first_name
+    while (fread(&student, sizeof(student), 1, fp))
+    {
+        if (strcmp(student.first_name, first_name) == 0)
+        {
+            found = 1;
+            // showing student details
+            printf(" %-10s %-15s %-15s %-15s %-15s %-15s %-15s \n", "Roll", "First Name", "Last Name", "Department", "Course", "Semester", "Section");
+            printf("-------------------------------------------------------------------------------------------------------------------\n");
+            printf(" %-10d %-15s %-15s %-15s %-15s %-15s %-15s \n", student.roll, student.first_name, student.last_name, student.department, student.course, student.semester, student.section);
+        }
+    }
+
+    // if student is not found then  showing not found message
+    if (!found)
+    {
+        printf("\n Student with this first name '%s' not found. \n", first_name);
+    }
+
+    // Close the file
+    fclose(fp);
+};
+
 void find_by_roll()
 {
     clear_screen();
