@@ -26,6 +26,10 @@ void clear_screen()
 void add_student(void);
 void student_list();
 void update_a_student();
+void find_by_first_name();
+void find_by_roll();
+void total_student();
+void delete_student();
 
 int main()
 {
@@ -57,15 +61,15 @@ int main()
             break;
 
         case 3:
-            printf("Find By Roll");
+            find_by_roll();
             break;
 
         case 4:
-            printf("Find By First Name");
+            find_by_first_name();
             break;
 
         case 5:
-            printf("Total Students");
+            total_student();
             break;
 
         case 6:
@@ -73,7 +77,7 @@ int main()
             break;
 
         case 7:
-            printf("Delete Student");
+            delete_student();
             break;
 
         default:
@@ -149,8 +153,29 @@ void add_student()
 
 void student_list()
 {
+    clear_screen();
     printf("\n <== Students List ==>\n");
     printf(" ----------------------------------\n");
+
+    // Open the file in read and write binary mode
+    fp = fopen("student.txt", "rb+");
+    if (fp == NULL)
+    {
+        printf("Error opening file\n");
+        exit(1);
+    }
+
+    printf(" %-10s %-15s %-15s %-15s %-15s %-15s %-15s \n", "Roll", "First Name", "Last Name", "Department", "Course", "Semester", "Section");
+    printf("-------------------------------------------------------------------------------------------------------------------\n");
+    // iterate student.txt to find all student
+    while (fread(&student, sizeof(student), 1, fp))
+    {
+
+        printf(" %-10d %-15s %-15s %-15s %-15s %-15s %-15s \n", student.roll, student.first_name, student.last_name, student.department, student.course, student.semester, student.section);
+    }
+
+    // Close the file
+    fclose(fp);
 }
 
 void update_a_student()
@@ -239,3 +264,8 @@ void update_a_student()
     // Close the file
     fclose(fp);
 }
+
+void find_by_first_name() {};
+void find_by_roll() {};
+void total_student() {};
+void delete_student() {};
