@@ -1,18 +1,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <postgresql/libpq-fe.h>
 
-FILE *fp, *temp_fp;
 struct student_object
 {
     int roll;
-    char first_name[50];
-    char last_name[50];
-    char department[50];
-    char course[50];
+    char first_name[100];
+    char last_name[100];
+    char department[100];
+    char courses[200];
     char semester[50];
     char section[50];
+    char emil[50];
 } student;
+
+FILE *fp, *temp_fp;
 
 void clear_screen()
 {
@@ -23,8 +26,10 @@ void clear_screen()
 #endif
 }
 
-void add_student(void);
-void student_list();
+void createTables(PGconn *conn);
+void connectionBD(PGconn **conn);
+void add_student(PGconn *conn);
+void student_list(PGconn *conn);
 void update_a_student();
 void find_by_first_name();
 void find_by_roll();
@@ -34,6 +39,10 @@ void delete_student();
 int main()
 {
     int input;
+    PGconn *conn = NULL;
+
+    // connecting to Database
+    connectionBD(&conn);
 
     while (1)
     {
@@ -53,11 +62,11 @@ int main()
         switch (input)
         {
         case 1:
-            add_student();
+            add_student(conn);
             break;
 
         case 2:
-            student_list();
+            student_list(conn);
             break;
 
         case 3:
@@ -81,6 +90,8 @@ int main()
             break;
 
         case 0:
+            // Close the connection to the database
+            PQfinish(conn);
             exit(1);
             break;
 
@@ -89,7 +100,7 @@ int main()
             printf(" Invalid Choice...\n\n");
             break;
         }
-        printf("\n\n Press Any Key To Continue... \n");
+        printf("\n\n Press Any Key To Continue...");
         // Clear newline character from scan
         while ((getchar()) != '\n')
             ;
@@ -99,16 +110,84 @@ int main()
     return 0;
 }
 
-void add_student()
+void connectionBD(PGconn **conn)
 {
-    clear_screen();
-    //  opens the file name student in append binary mode
-    fp = fopen("student.txt", "ab");
-    if (fp == NULL)
+    // Establish connection to the database
+    *conn = PQconnectdb("dbname=student_management_system user=postgres password=postgres host=localhost port=5432");
+
+    // Check if the connection was successful
+    if (PQstatus(*conn) != CONNECTION_OK)
     {
-        printf(" Error opening file\n");
+        fprintf(stderr, "Connection to database failed: %s\n", PQerrorMessage(*conn));
+        PQfinish(*conn);
         exit(1);
     }
+    else
+    {
+        printf("Database connected\n");
+    }
+
+    // Create tables
+    createTables(*conn);
+}
+
+void createTables(PGconn *conn)
+{
+    PGresult *res;
+
+    // SQL statements to create tables
+    const char *createStudentsTable = "CREATE TABLE IF NOT EXISTS students ("
+                                      "id SERIAL PRIMARY KEY,"
+                                      "first_name VARCHAR(100) NOT NULL,"
+                                      "last_name VARCHAR(100) NOT NULL,"
+                                      "roll INT UNIQUE NOT NULL,"
+                                      "department VARCHAR(100),"
+                                      "courses VARCHAR(200),"
+                                      "semester VARCHAR(50),"
+                                      "section VARCHAR(50),"
+                                      "email VARCHAR(50) UNIQUE"
+                                      ");";
+
+    const char *createTeachersTable = "CREATE TABLE IF NOT EXISTS teachers ("
+                                      "id SERIAL PRIMARY KEY,"
+                                      "name VARCHAR(100) NOT NULL,"
+                                      "email VARCHAR(100) UNIQUE NOT NULL,"
+                                      "acronym VARCHAR(100) UNIQUE NOT NULL,"
+                                      "phone_number VARCHAR(100),"
+                                      "email VARCHAR(100) UNIQUE NOT NULL,"
+                                      "department VARCHAR(100),"
+                                      "position VARCHAR(100)"
+                                      ");";
+
+    // Execute SQL to create students table
+    res = PQexec(conn, createStudentsTable);
+    if (PQresultStatus(res) != PGRES_COMMAND_OK)
+    {
+        fprintf(stderr, "CREATE TABLE students failed: %s", PQerrorMessage(conn));
+        PQclear(res);
+        PQfinish(conn);
+        exit(1);
+    }
+    PQclear(res);
+
+    // Execute SQL to create teachers table
+    res = PQexec(conn, createTeachersTable);
+    if (PQresultStatus(res) != PGRES_COMMAND_OK)
+    {
+        fprintf(stderr, "CREATE TABLE teachers failed: %s", PQerrorMessage(conn));
+        PQclear(res);
+        PQfinish(conn);
+        exit(1);
+    }
+    PQclear(res);
+}
+
+void add_student(PGconn *conn)
+{
+    clear_screen();
+    int roll;
+    char first_name[50], last_name[50], email[50], department[50], courses[200], semester[50], section[50];
+    PGresult *res;
 
     printf("\n <== Add Student Details ==>\n");
     printf(" ----------------------------------\n");
@@ -116,48 +195,65 @@ void add_student()
     //  take input from the user
     getchar();
     printf(" Enter the first name: ");
-    fgets(student.first_name, sizeof(student.first_name), stdin);
+    fgets(first_name, sizeof(first_name), stdin);
     // Remove trailing newline character if it exists
-    student.first_name[strcspn(student.first_name, "\n")] = 0;
+    first_name[strcspn(first_name, "\n")] = 0;
 
     printf(" Enter the last name: ");
-    fgets(student.last_name, sizeof(student.last_name), stdin);
-    student.last_name[strcspn(student.last_name, "\n")] = 0;
+    fgets(last_name, sizeof(last_name), stdin);
+    last_name[strcspn(last_name, "\n")] = 0;
 
     printf(" Enter the roll number: ");
-    scanf("%d", &student.roll);
+    scanf("%d", &roll);
     getchar();
 
-    printf(" Enter the department name: ");
-    fgets(student.department, sizeof(student.department), stdin);
-    student.department[strcspn(student.department, "\n")] = 0;
+    printf(" Enter your email: ");
+    fgets(email, sizeof(email), stdin);
+    email[strcspn(email, "\n")] = 0;
 
-    printf(" Enter the course id: ");
-    fgets(student.course, sizeof(student.course), stdin);
-    student.course[strcspn(student.course, "\n")] = 0;
+    printf(" Enter the department name: ");
+    fgets(department, sizeof(department), stdin);
+    department[strcspn(department, "\n")] = 0;
 
     printf(" Enter the semester: ");
-    fgets(student.semester, sizeof(student.semester), stdin);
-    student.semester[strcspn(student.semester, "\n")] = 0;
+    fgets(semester, sizeof(semester), stdin);
+    semester[strcspn(semester, "\n")] = 0;
 
     printf(" Enter the section: ");
-    fgets(student.section, sizeof(student.section), stdin);
-    student.section[strcspn(student.section, "\n")] = 0;
+    fgets(section, sizeof(section), stdin);
+    section[strcspn(section, "\n")] = 0;
 
-    printf(" %-10s %-15s %-15s %-15s %-15s %-15s %-15s \n", "Roll", "First Name", "Last Name", "Department", "Course", "Semester", "Section");
+    printf(" Enter the course ids (e.g. '123,1234,125'): ");
+    fgets(courses, sizeof(courses), stdin);
+    courses[strcspn(courses, "\n")] = 0;
+
+    // Construct the SQL INSERT query
+    char query[2048]; // Increased buffer size for potential larger queries
+    snprintf(query, sizeof(query),
+             "INSERT INTO students (first_name, last_name, roll, department, semester, section, email, courses) "
+             "VALUES ('%s', '%s', %d, '%s', '%s', '%s', '%s', '%s');",
+             first_name, last_name, roll, department, semester, section, email, courses);
+
+    // Execute the SQL query
+    res = PQexec(conn, query);
+    if (PQresultStatus(res) != PGRES_COMMAND_OK)
+    {
+        fprintf(stderr, "INSERT INTO students failed: %s", PQerrorMessage(conn));
+        PQclear(res);
+        return;
+    }
+
+    printf("Student added successfully!\n");
+    PQclear(res);
+
+    printf(" %-5s %-10s %-10s %-22s %-10s %-25s %-7s %-6s \n", "Roll", "First Name", "Last Name", "Email", "Department", "Courses", "Semester", "Section");
     printf(" -------------------------------------------------------------------------------------------------------------------\n");
-    printf(" %-10d %-15s %-15s %-15s %-15s %-15s %-15s \n", student.roll, student.first_name, student.last_name, student.department, student.course, student.semester, student.section);
+    printf(" %-5d %-10s %-10s %-22s %-10s %-25s %-7s %-6s \n", roll, first_name, last_name, email, department, courses, semester, section);
 
     printf("\n Student Added Successfully");
-
-    //  writes the data pointed to by &student to the file referenced by fp
-    fwrite(&student, sizeof(student), 1, fp);
-
-    //  closes the file
-    fclose(fp);
 }
 
-void student_list()
+void student_list(PGconn *conn)
 {
     clear_screen();
     printf("\n <== Students List ==>\n");
@@ -177,7 +273,7 @@ void student_list()
     while (fread(&student, sizeof(student), 1, fp))
     {
 
-        printf(" %-10d %-15s %-15s %-15s %-15s %-15s %-15s \n", student.roll, student.first_name, student.last_name, student.department, student.course, student.semester, student.section);
+        printf(" %-10d %-15s %-15s %-15s %-15s %-15s %-15s \n", student.roll, student.first_name, student.last_name, student.department, student.courses, student.semester, student.section);
     }
 
     // Close the file
@@ -240,8 +336,8 @@ void update_a_student()
         updated_student.department[strcspn(updated_student.department, "\n")] = 0;
 
         printf(" Enter the course id: ");
-        fgets(updated_student.course, sizeof(updated_student.course), stdin);
-        updated_student.course[strcspn(updated_student.course, "\n")] = 0;
+        fgets(updated_student.courses, sizeof(updated_student.courses), stdin);
+        updated_student.courses[strcspn(updated_student.courses, "\n")] = 0;
 
         printf(" Enter the semester: ");
         fgets(updated_student.semester, sizeof(updated_student.semester), stdin);
@@ -260,7 +356,7 @@ void update_a_student()
         // showing update result data
         printf(" %-10s %-15s %-15s %-15s %-15s %-15s %-15s \n", "Roll", "First Name", "Last Name", "Department", "Course", "Semester", "Section");
         printf(" -------------------------------------------------------------------------------------------------------------------\n");
-        printf(" %-10d %-15s %-15s %-15s %-15s %-15s %-15s \n", updated_student.roll, updated_student.first_name, updated_student.last_name, updated_student.department, updated_student.course, updated_student.semester, updated_student.section);
+        printf(" %-10d %-15s %-15s %-15s %-15s %-15s %-15s \n", updated_student.roll, updated_student.first_name, updated_student.last_name, updated_student.department, updated_student.courses, updated_student.semester, updated_student.section);
     }
     else
     {
@@ -303,7 +399,7 @@ void find_by_first_name()
             // showing student details
             printf(" %-10s %-15s %-15s %-15s %-15s %-15s %-15s \n", "Roll", "First Name", "Last Name", "Department", "Course", "Semester", "Section");
             printf(" -------------------------------------------------------------------------------------------------------------------\n");
-            printf(" %-10d %-15s %-15s %-15s %-15s %-15s %-15s \n", student.roll, student.first_name, student.last_name, student.department, student.course, student.semester, student.section);
+            printf(" %-10d %-15s %-15s %-15s %-15s %-15s %-15s \n", student.roll, student.first_name, student.last_name, student.department, student.courses, student.semester, student.section);
         }
     }
 
@@ -345,7 +441,7 @@ void find_by_roll()
             // showing student details
             printf(" %-10s %-15s %-15s %-15s %-15s %-15s %-15s \n", "Roll", "First Name", "Last Name", "Department", "Course", "Semester", "Section");
             printf(" -------------------------------------------------------------------------------------------------------------------\n");
-            printf(" %-10d %-15s %-15s %-15s %-15s %-15s %-15s \n", student.roll, student.first_name, student.last_name, student.department, student.course, student.semester, student.section);
+            printf(" %-10d %-15s %-15s %-15s %-15s %-15s %-15s \n", student.roll, student.first_name, student.last_name, student.department, student.courses, student.semester, student.section);
         }
     }
 
