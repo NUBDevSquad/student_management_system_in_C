@@ -39,14 +39,14 @@ int main()
     {
         clear_screen();
         printf(" <== Student Management System ==>\n");
-        printf(" 1.Add Student\n");
-        printf(" 2.Student List\n");
-        printf(" 3.Find By Roll\n");
-        printf(" 4.Find By First Name\n");
-        printf(" 5.Total Students\n");
-        printf(" 6.Update Student\n");
-        printf(" 7.Delete Student\n");
-        printf(" 0.Exit\n\n");
+        printf(" 1. Add Student\n");
+        printf(" 2. Student List\n");
+        printf(" 3. Find By Roll\n");
+        printf(" 4. Find By First Name\n");
+        printf(" 5. Total Students\n");
+        printf(" 6. Update Student\n");
+        printf(" 7. Delete Student\n");
+        printf(" 0. Exit\n\n");
         printf(" Enter your choice: ");
         scanf("%d", &input);
 
@@ -144,7 +144,9 @@ void add_student()
     fgets(student.section, sizeof(student.section), stdin);
     student.section[strcspn(student.section, "\n")] = 0;
 
-    printf("\n First name: %s, last name: %s, roll: %d, department: %s, course: %s, semester: %s, section %s.", student.first_name, student.last_name, student.roll, student.department, student.course, student.semester, student.section);
+    printf(" %-10s %-15s %-15s %-15s %-15s %-15s %-15s \n", "Roll", "First Name", "Last Name", "Department", "Course", "Semester", "Section");
+    printf(" -------------------------------------------------------------------------------------------------------------------\n");
+    printf(" %-10d %-15s %-15s %-15s %-15s %-15s %-15s \n", student.roll, student.first_name, student.last_name, student.department, student.course, student.semester, student.section);
 
     printf("\n Student Added Successfully");
 
@@ -170,7 +172,7 @@ void student_list()
     }
 
     printf(" %-10s %-15s %-15s %-15s %-15s %-15s %-15s \n", "Roll", "First Name", "Last Name", "Department", "Course", "Semester", "Section");
-    printf("-------------------------------------------------------------------------------------------------------------------\n");
+    printf(" -------------------------------------------------------------------------------------------------------------------\n");
     // iterate student.txt to find all student
     while (fread(&student, sizeof(student), 1, fp))
     {
@@ -217,7 +219,7 @@ void update_a_student()
         struct student_object updated_student;
 
         printf("\n Enter updated student details\n");
-        printf("----------------------------------\n");
+        printf(" ----------------------------------\n");
 
         // take input from the user
         getchar();
@@ -257,7 +259,7 @@ void update_a_student()
 
         // showing update result data
         printf(" %-10s %-15s %-15s %-15s %-15s %-15s %-15s \n", "Roll", "First Name", "Last Name", "Department", "Course", "Semester", "Section");
-        printf("-------------------------------------------------------------------------------------------------------------------\n");
+        printf(" -------------------------------------------------------------------------------------------------------------------\n");
         printf(" %-10d %-15s %-15s %-15s %-15s %-15s %-15s \n", updated_student.roll, updated_student.first_name, updated_student.last_name, updated_student.department, updated_student.course, updated_student.semester, updated_student.section);
     }
     else
@@ -300,7 +302,7 @@ void find_by_first_name()
             found = 1;
             // showing student details
             printf(" %-10s %-15s %-15s %-15s %-15s %-15s %-15s \n", "Roll", "First Name", "Last Name", "Department", "Course", "Semester", "Section");
-            printf("-------------------------------------------------------------------------------------------------------------------\n");
+            printf(" -------------------------------------------------------------------------------------------------------------------\n");
             printf(" %-10d %-15s %-15s %-15s %-15s %-15s %-15s \n", student.roll, student.first_name, student.last_name, student.department, student.course, student.semester, student.section);
         }
     }
@@ -342,7 +344,7 @@ void find_by_roll()
             found = 1;
             // showing student details
             printf(" %-10s %-15s %-15s %-15s %-15s %-15s %-15s \n", "Roll", "First Name", "Last Name", "Department", "Course", "Semester", "Section");
-            printf("-------------------------------------------------------------------------------------------------------------------\n");
+            printf(" -------------------------------------------------------------------------------------------------------------------\n");
             printf(" %-10d %-15s %-15s %-15s %-15s %-15s %-15s \n", student.roll, student.first_name, student.last_name, student.department, student.course, student.semester, student.section);
         }
     }
