@@ -266,6 +266,47 @@ void update_a_student()
 }
 
 void find_by_first_name() {};
-void find_by_roll() {};
+void find_by_roll()
+{
+    clear_screen();
+    printf("\n <== Find Student Details By Roll ==>\n");
+    printf(" ----------------------------------\n\n");
+
+    int found = 0;
+    int student_roll;
+    printf("\n Enter student roll number: ");
+    scanf("%d", &student_roll);
+
+    // Open the file in read and write binary mode
+    fp = fopen("student.txt", "rb+");
+    if (fp == NULL)
+    {
+        printf("Error opening file\n");
+        exit(1);
+    }
+
+    // find student roll from student.txt
+    while (fread(&student, sizeof(student), 1, fp))
+    {
+        if (student.roll == student_roll)
+        {
+            found = 1;
+            // showing student details
+            printf(" %-10s %-15s %-15s %-15s %-15s %-15s %-15s \n", "Roll", "First Name", "Last Name", "Department", "Course", "Semester", "Section");
+            printf("-------------------------------------------------------------------------------------------------------------------\n");
+            printf(" %-10d %-15s %-15s %-15s %-15s %-15s %-15s \n", student.roll, student.first_name, student.last_name, student.department, student.course, student.semester, student.section);
+        }
+    }
+
+    // if student is not found then  showing not found message
+    if (!found)
+    {
+        printf("\n Student with roll number %d not found. \n", student_roll);
+    }
+
+    // Close the file
+    fclose(fp);
+};
+
 void total_student() {};
 void delete_student() {};
