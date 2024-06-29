@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-FILE *fp;
+FILE *fp, *temp_fp;
 struct student_object
 {
     int roll;
@@ -78,6 +78,10 @@ int main()
 
         case 7:
             delete_student();
+            break;
+
+        case 0:
+            exit(1);
             break;
 
         default:
@@ -381,4 +385,62 @@ void total_student()
     fclose(fp);
 }
 
-void delete_student() {};
+void delete_student()
+{
+    clear_screen();
+    printf("\n <== Delete Student Using Roll ==>\n");
+    printf(" ----------------------------------\n\n");
+
+    int found = 0;
+    int student_roll;
+    printf("\n Enter student roll number: ");
+    scanf("%d", &student_roll);
+
+    // Open the original file in read binary mode
+    fp = fopen("student.txt", "rb");
+    if (fp == NULL)
+    {
+        printf("Error opening file\n");
+        exit(1);
+    }
+
+    // Open a temporary file in write binary mode
+    temp_fp = fopen("temp.txt", "wb");
+    if (temp_fp == NULL)
+    {
+        printf("Error opening temporary file\n");
+        fclose(fp);
+        exit(1);
+    }
+
+    // Copy data from original file to temporary file, skipping the record to delete
+    while (fread(&student, sizeof(student), 1, fp))
+    {
+        if (student.roll == student_roll)
+        {
+            found = 1;
+        }
+        else
+        {
+            fwrite(&student, sizeof(student), 1, temp_fp);
+        }
+    }
+
+    // Close the files
+    fclose(fp);
+    fclose(temp_fp);
+
+    // Replace original file with temporary file
+    remove("student.txt");
+    rename("temp.txt", "student.txt");
+
+    // If student was found and deleted
+    if (found)
+    {
+        printf("\n Student Deleted successfully.\n\n");
+    }
+    else
+    {
+        printf("\n Student with roll number %d not found. \n", student_roll);
+    }
+}
