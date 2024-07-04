@@ -50,11 +50,17 @@ int main()
         printf(" <== Student Management System ==>\n");
         printf(" 1. Add Student\n");
         printf(" 2. Student List\n");
-        printf(" 3. Find By Roll\n");
-        printf(" 4. Find By First Name\n");
-        printf(" 5. Total Students\n");
-        printf(" 6. Update Student\n");
-        printf(" 7. Delete Student\n");
+        printf(" 3. Find student By Roll\n");
+        printf(" 4. Total Students\n");
+        printf(" 5. Update Student\n");
+        printf(" 6. Delete Student\n");
+        printf(" 7. Add Teacher Details\n");
+        printf(" 8. Teacher List\n");
+        printf(" 9. Update Teacher\n");
+        printf(" 10. Delete a Teacher\n");
+        printf(" 11. Find teacher by acronym\n");
+        printf(" 12. Find teacher by subject code\n");
+        printf(" 13. Find student list by  teacher acronym\n");
         printf(" 0. Exit\n\n");
         printf(" Enter your choice: ");
         scanf("%d", &input);
@@ -74,19 +80,42 @@ int main()
             break;
 
         case 4:
-            find_by_first_name();
-            break;
-
-        case 5:
             total_student();
             break;
 
-        case 6:
+        case 5:
             update_a_student();
             break;
 
-        case 7:
+        case 6:
             delete_student();
+            break;
+
+        case 7:
+            printf(" 7. Add Teacher Details\n");
+            break;
+
+        case 8:
+            printf(" 8. Teacher List\n");
+            break;
+
+        case 9:
+            printf(" 9. Update Teacher\n");
+            break;
+        case 10:
+            printf(" 10. Delete a Teacher\n");
+            break;
+
+        case 11:
+            printf(" 11. Find teacher by acronym\n");
+            break;
+
+        case 12:
+            printf(" 12. Find teacher by subject code\n");
+            break;
+
+        case 13:
+            printf(" 13. Find student list by  teacher acronym\n");
             break;
 
         case 0:
@@ -259,25 +288,40 @@ void student_list(PGconn *conn)
     printf("\n <== Students List ==>\n");
     printf(" ----------------------------------\n");
 
-    // Open the file in read and write binary mode
-    fp = fopen("student.txt", "rb+");
-    if (fp == NULL)
+    // SQL query to select all students
+    const char *query = "SELECT roll, first_name, last_name, department, courses, semester, section FROM students";
+
+    // Execute the query
+    PGresult *res = PQexec(conn, query);
+
+    // Check for successful execution
+    if (PQresultStatus(res) != PGRES_TUPLES_OK)
     {
-        printf("Error opening file\n");
-        exit(1);
+        fprintf(stderr, "SELECT failed: %s", PQerrorMessage(conn));
+        PQclear(res);
+        return;
     }
 
     printf(" %-10s %-15s %-15s %-15s %-15s %-15s %-15s \n", "Roll", "First Name", "Last Name", "Department", "Course", "Semester", "Section");
     printf(" -------------------------------------------------------------------------------------------------------------------\n");
-    // iterate student.txt to find all student
-    while (fread(&student, sizeof(student), 1, fp))
-    {
 
-        printf(" %-10d %-15s %-15s %-15s %-15s %-15s %-15s \n", student.roll, student.first_name, student.last_name, student.department, student.courses, student.semester, student.section);
+    // Fetch and print each row
+    int rows = PQntuples(res);
+    for (int i = 0; i < rows; i++)
+    {
+        printf(" %-10s %-15s %-15s %-15s %-15s %-15s %-15s \n",
+               PQgetvalue(res, i, 0), // roll
+               PQgetvalue(res, i, 1), // first_name
+               PQgetvalue(res, i, 2), // last_name
+               PQgetvalue(res, i, 3), // department
+               PQgetvalue(res, i, 4), // courses
+               PQgetvalue(res, i, 5), // semester
+               PQgetvalue(res, i, 6)  // section
+        );
     }
 
-    // Close the file
-    fclose(fp);
+    // Clear the result
+    PQclear(res);
 }
 
 void update_a_student()
