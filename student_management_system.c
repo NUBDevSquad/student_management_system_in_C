@@ -469,26 +469,26 @@ void total_student(PGconn *conn)
     printf("\n <== Total Student Count ==>\n");
     printf(" ----------------------------------\n\n");
 
-    int count = 0;
+    // SQL query to find student by roll number
+    char query[256];
+    snprintf(query, sizeof(query), "SELECT COUNT(*) FROM students");
 
-    // Open the file in read binary mode
-    fp = fopen("student.txt", "rb");
-    if (fp == NULL)
+    // Execute the query
+    PGresult *res = PQexec(conn, query);
+
+    // Check for successful execution
+    if (PQresultStatus(res) != PGRES_TUPLES_OK)
     {
-        printf("Error opening file\n");
-        exit(1);
+        fprintf(stderr, "SELECT failed: %s", PQerrorMessage(conn));
+        PQclear(res);
+        return;
     }
 
-    // Count the number of students in student.txt
-    while (fread(&student, sizeof(student), 1, fp))
-    {
-        count++;
-    }
+    // Retrieve and print the student count
+    printf(" We Have a Total of %s Students. \n", PQgetvalue(res, 0, 0));
 
-    printf("\n We Have a Total of %d Students. \n", count);
-
-    // Close the file
-    fclose(fp);
+    // Clear the result
+    PQclear(res);
 }
 
 void delete_student(PGconn *conn)
