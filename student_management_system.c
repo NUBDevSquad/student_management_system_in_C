@@ -502,51 +502,32 @@ void delete_student(PGconn *conn)
     printf("\n Enter student roll number: ");
     scanf("%d", &student_roll);
 
-    // Open the original file in read binary mode
-    fp = fopen("student.txt", "rb");
-    if (fp == NULL)
+    // SQL query to delete the student by roll number
+    char query[256];
+    snprintf(query, sizeof(query), "DELETE FROM students WHERE roll = %d", student_roll);
+
+    // Execute the query
+    PGresult *res = PQexec(conn, query);
+
+    // Check for successful execution
+    if (PQresultStatus(res) != PGRES_COMMAND_OK)
     {
-        printf("Error opening file\n");
-        exit(1);
+        fprintf(stderr, "DELETE failed: %s", PQerrorMessage(conn));
+        PQclear(res);
+        return;
     }
 
-    // Open a temporary file in write binary mode
-    temp_fp = fopen("temp.txt", "wb");
-    if (temp_fp == NULL)
+    // Check the number of affected rows
+    int affected_rows = PQntuples(res);
+    if (affected_rows == 0)
     {
-        printf("Error opening temporary file\n");
-        fclose(fp);
-        exit(1);
-    }
-
-    // Copy data from original file to temporary file, skipping the record to delete
-    while (fread(&student, sizeof(student), 1, fp))
-    {
-        if (student.roll == student_roll)
-        {
-            found = 1;
-        }
-        else
-        {
-            fwrite(&student, sizeof(student), 1, temp_fp);
-        }
-    }
-
-    // Close the files
-    fclose(fp);
-    fclose(temp_fp);
-
-    // Replace original file with temporary file
-    remove("student.txt");
-    rename("temp.txt", "student.txt");
-
-    // If student was found and deleted
-    if (found)
-    {
-        printf("\n Student Deleted successfully.\n\n");
+        printf(" No student found with roll number %d.\n", student_roll);
     }
     else
     {
-        printf("\n Student with roll number %d not found. \n", student_roll);
+        printf(" Student with roll number %d has been deleted successfully.\n", student_roll);
     }
+
+    // Clear the result
+    PQclear(res);
 }
