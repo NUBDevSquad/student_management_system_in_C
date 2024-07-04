@@ -3,20 +3,6 @@
 #include <string.h>
 #include <postgresql/libpq-fe.h>
 
-struct student_object
-{
-    int roll;
-    char first_name[100];
-    char last_name[100];
-    char department[100];
-    char courses[200];
-    char semester[50];
-    char section[50];
-    char emil[50];
-} student;
-
-FILE *fp, *temp_fp;
-
 void clear_screen()
 {
 #ifdef _WIN32
