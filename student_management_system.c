@@ -30,11 +30,10 @@ void createTables(PGconn *conn);
 void connectionBD(PGconn **conn);
 void add_student(PGconn *conn);
 void student_list(PGconn *conn);
-void update_a_student();
-void find_by_first_name();
-void find_by_roll();
-void total_student();
-void delete_student();
+void update_a_student(PGconn *conn);
+void find_by_roll(PGconn *conn);
+void total_student(PGconn *conn);
+void delete_student(PGconn *conn);
 
 int main()
 {
@@ -76,19 +75,19 @@ int main()
             break;
 
         case 3:
-            find_by_roll();
+            find_by_roll(conn);
             break;
 
         case 4:
-            total_student();
+            total_student(conn);
             break;
 
         case 5:
-            update_a_student();
+            update_a_student(conn);
             break;
 
         case 6:
-            delete_student();
+            delete_student(conn);
             break;
 
         case 7:
@@ -324,7 +323,7 @@ void student_list(PGconn *conn)
     PQclear(res);
 }
 
-void update_a_student()
+void update_a_student(PGconn *conn)
 {
     clear_screen();
     printf("\n <== Update Student Details ==>\n");
@@ -411,53 +410,7 @@ void update_a_student()
     fclose(fp);
 }
 
-void find_by_first_name()
-{
-    clear_screen();
-    printf("\n <== Find Student Details By First Name ==>\n");
-    printf(" ----------------------------------\n\n");
-
-    int found = 0;
-    char first_name[50];
-
-    // takeing input from user
-    getchar();
-    printf(" Enter the first name: ");
-    fgets(first_name, sizeof(first_name), stdin);
-    first_name[strcspn(first_name, "\n")] = 0;
-
-    // Open the file in read and write binary mode
-    fp = fopen("student.txt", "rb+");
-    if (fp == NULL)
-    {
-        printf("Error opening file\n");
-        exit(1);
-    }
-
-    // find student from student.txt using first_name
-    while (fread(&student, sizeof(student), 1, fp))
-    {
-        if (strcmp(student.first_name, first_name) == 0)
-        {
-            found = 1;
-            // showing student details
-            printf(" %-10s %-15s %-15s %-15s %-15s %-15s %-15s \n", "Roll", "First Name", "Last Name", "Department", "Course", "Semester", "Section");
-            printf(" -------------------------------------------------------------------------------------------------------------------\n");
-            printf(" %-10d %-15s %-15s %-15s %-15s %-15s %-15s \n", student.roll, student.first_name, student.last_name, student.department, student.courses, student.semester, student.section);
-        }
-    }
-
-    // if student is not found then  showing not found message
-    if (!found)
-    {
-        printf("\n Student with this first name '%s' not found. \n", first_name);
-    }
-
-    // Close the file
-    fclose(fp);
-};
-
-void find_by_roll()
+void find_by_roll(PGconn *conn)
 {
     clear_screen();
     printf("\n <== Find Student Details By Roll ==>\n");
@@ -468,38 +421,49 @@ void find_by_roll()
     printf("\n Enter student roll number: ");
     scanf("%d", &student_roll);
 
-    // Open the file in read and write binary mode
-    fp = fopen("student.txt", "rb+");
-    if (fp == NULL)
+    // SQL query to find student by roll number
+    char query[256];
+    snprintf(query, sizeof(query), "SELECT roll, first_name, last_name, department, courses, semester, section FROM students WHERE roll = %d", student_roll);
+
+    // Execute the query
+    PGresult *res = PQexec(conn, query);
+
+    // Check for successful execution
+    if (PQresultStatus(res) != PGRES_TUPLES_OK)
     {
-        printf("Error opening file\n");
-        exit(1);
+        fprintf(stderr, "SELECT failed: %s", PQerrorMessage(conn));
+        PQclear(res);
+        return;
     }
 
-    // find student roll from student.txt
-    while (fread(&student, sizeof(student), 1, fp))
+    // Check if the student was found
+    int rows = PQntuples(res);
+    if (rows == 0)
     {
-        if (student.roll == student_roll)
-        {
-            found = 1;
-            // showing student details
-            printf(" %-10s %-15s %-15s %-15s %-15s %-15s %-15s \n", "Roll", "First Name", "Last Name", "Department", "Course", "Semester", "Section");
-            printf(" -------------------------------------------------------------------------------------------------------------------\n");
-            printf(" %-10d %-15s %-15s %-15s %-15s %-15s %-15s \n", student.roll, student.first_name, student.last_name, student.department, student.courses, student.semester, student.section);
-        }
+        printf(" No student found with roll number %d.\n", student_roll);
+    }
+    else
+    {
+        printf(" %-10s %-15s %-15s %-15s %-15s %-15s %-15s \n", "Roll", "First Name", "Last Name", "Department", "Course", "Semester", "Section");
+        printf(" ---------------------------------------------------------------------------------------------------------\n");
+
+        // Print the student's details
+        printf(" %-10s %-15s %-15s %-15s %-15s %-15s %-15s \n",
+               PQgetvalue(res, 0, 0), // roll
+               PQgetvalue(res, 0, 1), // first_name
+               PQgetvalue(res, 0, 2), // last_name
+               PQgetvalue(res, 0, 3), // department
+               PQgetvalue(res, 0, 4), // courses
+               PQgetvalue(res, 0, 5), // semester
+               PQgetvalue(res, 0, 6)  // section
+        );
     }
 
-    // if student is not found then  showing not found message
-    if (!found)
-    {
-        printf("\n Student with roll number %d not found. \n", student_roll);
-    }
-
-    // Close the file
-    fclose(fp);
+    // Clear the result
+    PQclear(res);
 };
 
-void total_student()
+void total_student(PGconn *conn)
 {
     clear_screen();
     printf("\n <== Total Student Count ==>\n");
@@ -527,7 +491,7 @@ void total_student()
     fclose(fp);
 }
 
-void delete_student()
+void delete_student(PGconn *conn)
 {
     clear_screen();
     printf("\n <== Delete Student Using Roll ==>\n");
