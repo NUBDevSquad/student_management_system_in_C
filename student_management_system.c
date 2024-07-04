@@ -210,6 +210,7 @@ void createTables(PGconn *conn)
     PQclear(res);
 }
 
+// student
 void add_student(PGconn *conn)
 {
     clear_screen();
@@ -334,80 +335,86 @@ void update_a_student(PGconn *conn)
     printf("\n Enter student roll number: ");
     scanf("%d", &student_roll);
 
-    // Open the file in read and write binary mode
-    fp = fopen("student.txt", "rb+");
-    if (fp == NULL)
+    // SQL query to find student by roll number
+    char query[256];
+    snprintf(query, sizeof(query), "SELECT roll FROM students WHERE roll = %d", student_roll);
+
+    // Execute the query
+    PGresult *res = PQexec(conn, query);
+
+    // Check for successful execution
+    if (PQresultStatus(res) != PGRES_TUPLES_OK)
     {
-        printf("Error opening file\n");
-        exit(1);
+        fprintf(stderr, "SELECT failed: %s", PQerrorMessage(conn));
+        PQclear(res);
+        return;
     }
 
-    // find student roll from student.txt
-    while (fread(&student, sizeof(student), 1, fp))
+    // Check if the student was found
+    int rows = PQntuples(res);
+    if (rows == 0)
     {
-        if (student.roll == student_roll)
-        {
-            found = 1;
-            break;
-        }
+        printf(" No student found with roll number %d.\n", student_roll);
+        return;
     }
 
-    // if student found then update student details
-    if (found)
+    int roll;
+    char first_name[50], last_name[50], email[50], department[50], courses[200], semester[50], section[50];
+
+    printf("\n Enter updated student details\n");
+    printf(" ----------------------------------\n");
+
+    //  take input from the user
+    getchar();
+    printf(" Enter the first name: ");
+    fgets(first_name, sizeof(first_name), stdin);
+    // Remove trailing newline character if it exists
+    first_name[strcspn(first_name, "\n")] = 0;
+
+    printf(" Enter the last name: ");
+    fgets(last_name, sizeof(last_name), stdin);
+    last_name[strcspn(last_name, "\n")] = 0;
+
+    printf(" Enter the roll number: ");
+    scanf("%d", &roll);
+    getchar();
+
+    printf(" Enter your email: ");
+    fgets(email, sizeof(email), stdin);
+    email[strcspn(email, "\n")] = 0;
+
+    printf(" Enter the department name: ");
+    fgets(department, sizeof(department), stdin);
+    department[strcspn(department, "\n")] = 0;
+
+    printf(" Enter the semester: ");
+    fgets(semester, sizeof(semester), stdin);
+    semester[strcspn(semester, "\n")] = 0;
+
+    printf(" Enter the section: ");
+    fgets(section, sizeof(section), stdin);
+    section[strcspn(section, "\n")] = 0;
+
+    printf(" Enter the course ids (e.g. '123,1234,125'): ");
+    fgets(courses, sizeof(courses), stdin);
+    courses[strcspn(courses, "\n")] = 0;
+
+    char update_query[1024];
+    snprintf(update_query, sizeof(update_query),
+             "UPDATE students SET first_name='%s', last_name='%s', department='%s', semester='%s', section='%s', email='%s', courses='%s' WHERE roll=%d",
+             first_name, last_name, department, semester, section, email, courses, student_roll);
+
+    // Execute the SQL query
+    res = PQexec(conn, update_query);
+    if (PQresultStatus(res) != PGRES_COMMAND_OK)
     {
-        struct student_object updated_student;
-
-        printf("\n Enter updated student details\n");
-        printf(" ----------------------------------\n");
-
-        // take input from the user
-        getchar();
-        printf(" Enter the first name: ");
-        fgets(updated_student.first_name, sizeof(updated_student.first_name), stdin);
-        updated_student.first_name[strcspn(updated_student.first_name, "\n")] = 0;
-
-        printf(" Enter the last name: ");
-        fgets(updated_student.last_name, sizeof(updated_student.last_name), stdin);
-        updated_student.last_name[strcspn(updated_student.last_name, "\n")] = 0;
-
-        printf(" Enter the roll number: ");
-        scanf("%d", &updated_student.roll);
-        getchar();
-
-        printf(" Enter the department name: ");
-        fgets(updated_student.department, sizeof(updated_student.department), stdin);
-        updated_student.department[strcspn(updated_student.department, "\n")] = 0;
-
-        printf(" Enter the course id: ");
-        fgets(updated_student.courses, sizeof(updated_student.courses), stdin);
-        updated_student.courses[strcspn(updated_student.courses, "\n")] = 0;
-
-        printf(" Enter the semester: ");
-        fgets(updated_student.semester, sizeof(updated_student.semester), stdin);
-        updated_student.semester[strcspn(updated_student.semester, "\n")] = 0;
-
-        printf(" Enter the section: ");
-        fgets(updated_student.section, sizeof(updated_student.section), stdin);
-        updated_student.section[strcspn(updated_student.section, "\n")] = 0;
-
-        // remove current student from student.txt
-        fseek(fp, -sizeof(student), SEEK_CUR);
-        // updated student data
-        fwrite(&updated_student, sizeof(updated_student), 1, fp);
-        printf("\n Student details updated successfully.\n\n");
-
-        // showing update result data
-        printf(" %-10s %-15s %-15s %-15s %-15s %-15s %-15s \n", "Roll", "First Name", "Last Name", "Department", "Course", "Semester", "Section");
-        printf(" -------------------------------------------------------------------------------------------------------------------\n");
-        printf(" %-10d %-15s %-15s %-15s %-15s %-15s %-15s \n", updated_student.roll, updated_student.first_name, updated_student.last_name, updated_student.department, updated_student.courses, updated_student.semester, updated_student.section);
-    }
-    else
-    {
-        printf("\n Student with roll number %d not found. \n", student_roll);
+        fprintf(stderr, "UPDATE students failed: %s", PQerrorMessage(conn));
+        PQclear(res);
+        return;
     }
 
-    // Close the file
-    fclose(fp);
+    printf("\n Student updated successfully!\n");
+    PQclear(res);
 }
 
 void find_by_roll(PGconn *conn)
@@ -531,3 +538,5 @@ void delete_student(PGconn *conn)
     // Clear the result
     PQclear(res);
 }
+
+// teacher
