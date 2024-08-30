@@ -14,6 +14,15 @@ struct student_object
     char section[50];
 } student;
 
+struct teacher_object
+{
+    char name[50];
+    char phone[50];
+    char class[50];
+    char acronym[50];
+    char subject_code[50];
+} teacher;
+
 void clear_screen()
 {
 #ifdef _WIN32
@@ -42,10 +51,16 @@ int main()
         printf(" 1. Add Student\n");
         printf(" 2. Student List\n");
         printf(" 3. Find By Roll\n");
-        printf(" 4. Find By First Name\n");
-        printf(" 5. Total Students\n");
-        printf(" 6. Update Student\n");
-        printf(" 7. Delete Student\n");
+        printf(" 4. Total Students\n");
+        printf(" 5. Update Student\n");
+        printf(" 6. Delete Student\n");
+        printf(" 7. Add Teacher Details\n");
+        printf(" 8. Teacher List\n");
+        printf(" 9. Update Teacher\n");
+        printf(" 10. Delete a Teacher\n");
+        printf(" 11. Find teacher by acronym\n");
+        printf(" 12. Find teacher by subject code\n");
+        printf(" 13. Find student list by  teacher acronym\n");
         printf(" 0. Exit\n\n");
         printf(" Enter your choice: ");
         scanf("%d", &input);
@@ -65,22 +80,46 @@ int main()
             break;
 
         case 4:
-            find_by_first_name();
-            break;
-
-        case 5:
             total_student();
             break;
 
-        case 6:
+        case 5:
             update_a_student();
             break;
 
-        case 7:
+        case 6:
             delete_student();
             break;
 
+        case 7:
+            printf(" 7. Add Teacher Details\n");
+            break;
+
+        case 8:
+            printf(" 8. Teacher List\n");
+            break;
+
+        case 9:
+            printf(" 9. Update Teacher\n");
+            break;
+        case 10:
+            printf(" 10. Delete a Teacher\n");
+            break;
+
+        case 11:
+            printf(" 11. Find teacher by acronym\n");
+            break;
+
+        case 12:
+            printf(" 12. Find teacher by subject code\n");
+            break;
+
+        case 13:
+            printf(" 13. Find student list by  teacher acronym\n");
+            break;
+
         case 0:
+            // Close the connection to the database
             exit(1);
             break;
 
