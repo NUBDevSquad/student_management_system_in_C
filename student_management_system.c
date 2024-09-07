@@ -53,7 +53,7 @@ int main()
     while (1)
     {
         clear_screen();
-        printf(" <== Student Management System ==>\n");
+        printf(" <== School Management System ==>\n");
         printf(" 1. Add Student\n");
         printf(" 2. Student List\n");
         printf(" 3. Find By Roll\n");
