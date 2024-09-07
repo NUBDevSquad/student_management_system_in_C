@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-FILE *fp, *temp_fp;
+FILE *fp, *temp_fp, *fpt, *temp_fpt;
 struct student_object
 {
     int roll;
@@ -18,7 +18,7 @@ struct teacher_object
 {
     char name[50];
     char phone[50];
-    char class[50];
+    char department[50];
     char acronym[50];
     char subject_code[50];
 } teacher;
@@ -35,10 +35,16 @@ void clear_screen()
 void add_student(void);
 void student_list();
 void update_a_student();
-void find_by_first_name();
 void find_by_roll();
 void total_student();
 void delete_student();
+void add_teacher();
+void teacher_list();
+void update_teacher();
+void delete_teacher();
+void find_teacher_by_arc();
+void find_teacher_by_subject_code();
+void find_student_by_teacher_arc();
 
 int main()
 {
@@ -92,30 +98,30 @@ int main()
             break;
 
         case 7:
-            printf(" 7. Add Teacher Details\n");
+            add_teacher();
             break;
 
         case 8:
-            printf(" 8. Teacher List\n");
+            teacher_list();
             break;
 
         case 9:
-            printf(" 9. Update Teacher\n");
+            update_teacher();
             break;
         case 10:
-            printf(" 10. Delete a Teacher\n");
+            delete_teacher();
             break;
 
         case 11:
-            printf(" 11. Find teacher by acronym\n");
+            find_teacher_by_arc();
             break;
 
         case 12:
-            printf(" 12. Find teacher by subject code\n");
+            find_teacher_by_subject_code();
             break;
 
         case 13:
-            printf(" 13. Find student list by  teacher acronym\n");
+            find_student_by_teacher_arc();
             break;
 
         case 0:
@@ -310,52 +316,6 @@ void update_a_student()
     fclose(fp);
 }
 
-void find_by_first_name()
-{
-    clear_screen();
-    printf("\n <== Find Student Details By First Name ==>\n");
-    printf(" ----------------------------------\n\n");
-
-    int found = 0;
-    char first_name[50];
-
-    // takeing input from user
-    getchar();
-    printf(" Enter the first name: ");
-    fgets(first_name, sizeof(first_name), stdin);
-    first_name[strcspn(first_name, "\n")] = 0;
-
-    // Open the file in read and write binary mode
-    fp = fopen("student.txt", "rb+");
-    if (fp == NULL)
-    {
-        printf("Error opening file\n");
-        exit(1);
-    }
-
-    // find student from student.txt using first_name
-    while (fread(&student, sizeof(student), 1, fp))
-    {
-        if (strcmp(student.first_name, first_name) == 0)
-        {
-            found = 1;
-            // showing student details
-            printf(" %-10s %-15s %-15s %-15s %-15s %-15s %-15s \n", "Roll", "First Name", "Last Name", "Department", "Course", "Semester", "Section");
-            printf(" -------------------------------------------------------------------------------------------------------------------\n");
-            printf(" %-10d %-15s %-15s %-15s %-15s %-15s %-15s \n", student.roll, student.first_name, student.last_name, student.department, student.course, student.semester, student.section);
-        }
-    }
-
-    // if student is not found then  showing not found message
-    if (!found)
-    {
-        printf("\n Student with this first name '%s' not found. \n", first_name);
-    }
-
-    // Close the file
-    fclose(fp);
-};
-
 void find_by_roll()
 {
     clear_screen();
@@ -485,3 +445,361 @@ void delete_student()
         printf("\n Student with roll number %d not found. \n", student_roll);
     }
 }
+
+void add_teacher()
+{
+    clear_screen();
+    //  opens the file name teacher in append binary mode
+    fpt = fopen("teacher.txt", "ab");
+
+    printf("\n <== Add Teacher Details ==>\n");
+    printf(" ----------------------------------\n");
+
+    //  take input from the user
+    getchar();
+    printf(" Enter name: ");
+    fgets(teacher.name, sizeof(teacher.name), stdin);
+    // Remove trailing newline character if it exists
+    teacher.name[strcspn(teacher.name, "\n")] = 0;
+
+    printf(" Enter phone number: ");
+    fgets(teacher.phone, sizeof(teacher.phone), stdin);
+    teacher.phone[strcspn(teacher.phone, "\n")] = 0;
+
+    printf(" Enter department name: ");
+    fgets(teacher.department, sizeof(teacher.department), stdin);
+    teacher.department[strcspn(teacher.department, "\n")] = 0;
+
+    printf(" Enter teacher acronym: ");
+    fgets(teacher.acronym, sizeof(teacher.acronym), stdin);
+    teacher.acronym[strcspn(teacher.acronym, "\n")] = 0;
+
+    printf(" Enter subject code: ");
+    fgets(teacher.subject_code, sizeof(teacher.subject_code), stdin);
+    teacher.subject_code[strcspn(teacher.subject_code, "\n")] = 0;
+
+    printf(" %-30s %-20s %-20s %-15s %-15s \n", "Name", "Phone Number", "Department", "Acronym", "Subject Code");
+    printf(" -------------------------------------------------------------------------------------------------------------------\n");
+    printf(" %-30s %-20s %-20s %-15s %-15s \n", teacher.name, teacher.phone, teacher.department, teacher.acronym, teacher.subject_code);
+
+    printf("\n Teacher Added Successfully");
+
+    //  writes the data pointed to by &teacher to the file referenced by fpt
+    fwrite(&teacher, sizeof(teacher), 1, fpt);
+
+    //  closes the file
+    fclose(fpt);
+}
+
+void teacher_list()
+{
+    clear_screen();
+    printf("\n <== Teacher List ==>\n");
+    printf(" ----------------------------------\n");
+
+    // Open the file in read and write binary mode
+    fpt = fopen("teacher.txt", "rb+");
+    if (fpt == NULL)
+    {
+        printf("Error opening file\n");
+        exit(1);
+    }
+
+    printf(" %-30s %-20s %-20s %-15s %-15s \n", "Name", "Phone Number", "Department", "Acronym", "Subject Code");
+    printf(" -------------------------------------------------------------------------------------------------------------------\n");
+    // iterate teacher.txt to find all teacher
+    while (fread(&teacher, sizeof(teacher), 1, fpt))
+    {
+
+        printf(" %-30s %-20s %-20s %-15s %-15s \n", teacher.name, teacher.phone, teacher.department, teacher.acronym, teacher.subject_code);
+    }
+
+    // Close the file
+    fclose(fpt);
+};
+
+void update_teacher()
+{
+    clear_screen();
+    printf("\n <== Update Teacher Details ==>\n");
+    printf(" ----------------------------------\n\n");
+
+    int found = 0;
+    char teacher_acronym[10];
+
+    printf("\n Enter teacher acronym: ");
+    scanf("%s", teacher_acronym);
+
+    // Open the file in read and write binary mode
+    fpt = fopen("teacher.txt", "rb+");
+    if (fpt == NULL)
+    {
+        printf("Error opening file\n");
+        exit(1);
+    }
+
+    // Find teacher by acronym in teacher.txt
+    while (fread(&teacher, sizeof(teacher), 1, fpt))
+    {
+        if (strcmp(teacher.acronym, teacher_acronym) == 0)
+        {
+            found = 1;
+            break;
+        }
+    }
+
+    // If teacher is found, update their details
+    if (found)
+    {
+        struct teacher_object updated_teacher; // Use the correct struct
+
+        printf("\n Enter updated teacher details\n");
+        printf(" ----------------------------------\n");
+
+        // Take input from the user
+        getchar(); // Clear the newline from the buffer
+        printf(" Enter name: ");
+        fgets(updated_teacher.name, sizeof(updated_teacher.name), stdin);
+        updated_teacher.name[strcspn(updated_teacher.name, "\n")] = 0; // Remove trailing newline
+
+        printf(" Enter phone number: ");
+        fgets(updated_teacher.phone, sizeof(updated_teacher.phone), stdin);
+        updated_teacher.phone[strcspn(updated_teacher.phone, "\n")] = 0;
+
+        printf(" Enter department name: ");
+        fgets(updated_teacher.department, sizeof(updated_teacher.department), stdin);
+        updated_teacher.department[strcspn(updated_teacher.department, "\n")] = 0;
+
+        printf(" Enter teacher acronym: ");
+        fgets(updated_teacher.acronym, sizeof(updated_teacher.acronym), stdin);
+        updated_teacher.acronym[strcspn(updated_teacher.acronym, "\n")] = 0;
+
+        printf(" Enter subject code: ");
+        fgets(updated_teacher.subject_code, sizeof(updated_teacher.subject_code), stdin);
+        updated_teacher.subject_code[strcspn(updated_teacher.subject_code, "\n")] = 0;
+
+        // Seek back to overwrite the current teacher entry
+        fseek(fpt, -sizeof(teacher), SEEK_CUR);
+        fwrite(&updated_teacher, sizeof(updated_teacher), 1, fpt);
+
+        printf("\n Teacher details updated successfully.\n\n");
+
+        // Display updated data
+        printf(" %-30s %-20s %-20s %-15s %-15s \n", "Name", "Phone Number", "Department", "Acronym", "Subject Code");
+        printf(" -------------------------------------------------------------------------------------------------------------------\n");
+        printf(" %-30s %-20s %-20s %-15s %-15s \n", updated_teacher.name, updated_teacher.phone, updated_teacher.department, updated_teacher.acronym, updated_teacher.subject_code);
+    }
+    else
+    {
+        printf("\n Teacher with acronym %s not found.\n", teacher_acronym);
+    }
+
+    // Close the file
+    fclose(fpt);
+}
+
+void delete_teacher()
+{
+    clear_screen();
+    printf("\n <== Delete Teacher Using acronym ==>\n");
+    printf(" ----------------------------------\n\n");
+
+    int found = 0;
+    char teacher_acronym[10];
+
+    printf("\n Enter teacher acronym: ");
+    scanf("%s", teacher_acronym);
+
+    // Open the file in read and write binary mode
+    fpt = fopen("teacher.txt", "rb+");
+
+    // Open a temporary file in write binary mode
+    temp_fpt = fopen("temp_teacher.txt", "wb");
+
+    // Copy data from original file to temporary file, skipping the record to delete
+    while (fread(&teacher, sizeof(teacher), 1, fpt))
+    {
+        if (strcmp(teacher.acronym, teacher_acronym) == 0)
+        {
+            found = 1;
+            break;
+        }
+        else
+        {
+            fwrite(&teacher, sizeof(teacher), 1, temp_fpt);
+        }
+    }
+
+    // Close the files
+    fclose(fpt);
+    fclose(temp_fpt);
+
+    // Replace original file with temporary file
+    remove("teacher.txt");
+    rename("temp_teacher.txt", "teacher.txt");
+
+    // If teacher was found and deleted
+    if (found)
+    {
+        printf("\n Teacher Deleted successfully.\n\n");
+    }
+    else
+    {
+        printf("\n Teacher with this acronym %s not found. \n", teacher_acronym);
+    }
+};
+
+void find_teacher_by_arc()
+{
+    clear_screen();
+    printf("\n <== Find Teacher Details By Acronym ==>\n");
+    printf(" ----------------------------------\n\n");
+
+    int found = 0;
+    char teacher_acronym[10];
+
+    printf("\n Enter teacher acronym: ");
+    scanf("%s", teacher_acronym);
+
+    // Open the file in read and write binary mode
+    fpt = fopen("teacher.txt", "rb+");
+    if (fpt == NULL)
+    {
+        printf("Error opening file\n");
+        exit(1);
+    }
+
+    // Find teacher by acronym in teacher.txt
+    while (fread(&teacher, sizeof(teacher), 1, fpt))
+    {
+        if (strcmp(teacher.acronym, teacher_acronym) == 0)
+        {
+            found = 1;
+            printf(" %-30s %-20s %-20s %-15s %-15s \n", "Name", "Phone Number", "Department", "Acronym", "Subject Code");
+            printf(" -------------------------------------------------------------------------------------------------------------------\n");
+            printf(" %-30s %-20s %-20s %-15s %-15s \n", teacher.name, teacher.phone, teacher.department, teacher.acronym, teacher.subject_code);
+
+            break;
+        }
+    }
+
+    if (found == 0)
+    {
+        printf("\n Teacher with acronym %s not found.\n", teacher_acronym);
+    }
+
+    // Close the file
+    fclose(fpt);
+};
+
+void find_teacher_by_subject_code()
+{
+    clear_screen();
+    printf("\n <== Find Teacher Details By Subject Code ==>\n");
+    printf(" ----------------------------------\n\n");
+
+    int found = 0;
+    char subject_code[10];
+
+    printf("\n Enter teacher acronym: ");
+    scanf("%s", subject_code);
+
+    // Open the file in read and write binary mode
+    fpt = fopen("teacher.txt", "rb+");
+    if (fpt == NULL)
+    {
+        printf("Error opening file\n");
+        exit(1);
+    }
+
+    // Find teacher by acronym in teacher.txt
+    while (fread(&teacher, sizeof(teacher), 1, fpt))
+    {
+        if (strcmp(teacher.subject_code, subject_code) == 0)
+        {
+            found = 1;
+            printf(" %-30s %-20s %-20s %-15s %-15s \n", "Name", "Phone Number", "Department", "Acronym", "Subject Code");
+            printf(" -------------------------------------------------------------------------------------------------------------------\n");
+            printf(" %-30s %-20s %-20s %-15s %-15s \n", teacher.name, teacher.phone, teacher.department, teacher.acronym, teacher.subject_code);
+
+            break;
+        }
+    }
+
+    if (found == 0)
+    {
+        printf("\n Teacher with acronym %s not found.\n", subject_code);
+    }
+
+    // Close the file
+    fclose(fpt);
+};
+
+void find_student_by_teacher_arc()
+{
+    clear_screen();
+    printf("\n <== Find Students Details By Teacher Acronym ==>\n");
+    printf(" ----------------------------------\n\n");
+
+    int found = 0;
+    int found_student = 0;
+    char acronym[10];
+    char subject_code[10];
+
+    printf("\n Enter teacher acronym: ");
+    scanf("%s", acronym);
+
+    // Open the file in read and write binary mode
+    fpt = fopen("teacher.txt", "rb+");
+    if (fpt == NULL)
+    {
+        printf("Error opening file\n");
+        exit(1);
+    }
+
+    // Open the file in read and write binary mode
+    fp = fopen("student.txt", "rb+");
+    if (fp == NULL)
+    {
+        printf("Error opening file\n");
+        exit(1);
+    }
+
+    // Find teacher by acronym in teacher.txt
+    while (fread(&teacher, sizeof(teacher), 1, fpt))
+    {
+        if (strcmp(teacher.acronym, acronym) == 0)
+        {
+            found = 1;
+            strcpy(subject_code, teacher.subject_code);
+            break;
+        }
+    }
+
+    if (found)
+    {
+        printf(" %-10s %-15s %-15s %-15s %-15s %-15s %-15s \n", "Roll", "First Name", "Last Name", "Department", "Course", "Semester", "Section");
+        printf(" -------------------------------------------------------------------------------------------------------------------\n");
+        while (fread(&student, sizeof(student), 1, fpt))
+        {
+            if (strcmp(student.course, subject_code) == 0)
+            {
+                found_student = 1;
+                printf(" %-10d %-15s %-15s %-15s %-15s %-15s %-15s \n", student.roll, student.first_name, student.last_name, student.department, student.course, student.semester, student.section);
+            }
+        }
+
+        if (!found_student)
+        {
+            printf("\n No students found!\n");
+        }
+    }
+    else
+    {
+        printf("\n Teacher with acronym %s not found.\n", acronym);
+    }
+
+    // Close the file
+    fclose(fp);
+    fclose(fpt);
+};
