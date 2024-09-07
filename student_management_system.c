@@ -749,19 +749,20 @@ void find_student_by_teacher_arc()
     printf("\n Enter teacher acronym: ");
     scanf("%s", acronym);
 
-    // Open the file in read and write binary mode
+    // Open the teacher file in read and write binary mode
     fpt = fopen("teacher.txt", "rb+");
     if (fpt == NULL)
     {
-        printf("Error opening file\n");
+        printf("Error opening teacher file\n");
         exit(1);
     }
 
-    // Open the file in read and write binary mode
+    // Open the student file in read and write binary mode
     fp = fopen("student.txt", "rb+");
     if (fp == NULL)
     {
-        printf("Error opening file\n");
+        printf("Error opening student file\n");
+        fclose(fpt);
         exit(1);
     }
 
@@ -780,7 +781,8 @@ void find_student_by_teacher_arc()
     {
         printf(" %-10s %-15s %-15s %-15s %-15s %-15s %-15s \n", "Roll", "First Name", "Last Name", "Department", "Course", "Semester", "Section");
         printf(" -------------------------------------------------------------------------------------------------------------------\n");
-        while (fread(&student, sizeof(student), 1, fpt))
+
+        while (fread(&student, sizeof(student), 1, fp))
         {
             if (strcmp(student.course, subject_code) == 0)
             {
@@ -799,7 +801,7 @@ void find_student_by_teacher_arc()
         printf("\n Teacher with acronym %s not found.\n", acronym);
     }
 
-    // Close the file
+    // Close the files
     fclose(fp);
     fclose(fpt);
-};
+}
