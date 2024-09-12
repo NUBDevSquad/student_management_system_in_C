@@ -212,7 +212,7 @@ void student_list()
     fp = fopen("student.txt", "rb+");
     if (fp == NULL)
     {
-        printf("Error opening file\n");
+        printf(" Error opening file. you don't have any data. \n");
         exit(1);
     }
 
@@ -235,18 +235,18 @@ void update_a_student()
     printf("\n <== Update Student Details ==>\n");
     printf(" ----------------------------------\n\n");
 
-    int found = 0;
-    int student_roll;
-    printf("\n Enter student roll number: ");
-    scanf("%d", &student_roll);
-
     // Open the file in read and write binary mode
     fp = fopen("student.txt", "rb+");
     if (fp == NULL)
     {
-        printf("Error opening file\n");
+        printf(" Error opening file. you don't have any data. \n");
         exit(1);
     }
+
+    int found = 0;
+    int student_roll;
+    printf("\n Enter student roll number: ");
+    scanf("%d", &student_roll);
 
     // find student roll from student.txt
     while (fread(&student, sizeof(student), 1, fp))
@@ -318,6 +318,14 @@ void update_a_student()
 
 void find_by_roll()
 {
+    // Open the file in read and write binary mode
+    fp = fopen("student.txt", "rb+");
+    if (fp == NULL)
+    {
+        printf(" Error opening file. you don't have any data. \n");
+        exit(1);
+    }
+
     clear_screen();
     printf("\n <== Find Student Details By Roll ==>\n");
     printf(" ----------------------------------\n\n");
@@ -326,14 +334,6 @@ void find_by_roll()
     int student_roll;
     printf("\n Enter student roll number: ");
     scanf("%d", &student_roll);
-
-    // Open the file in read and write binary mode
-    fp = fopen("student.txt", "rb+");
-    if (fp == NULL)
-    {
-        printf("Error opening file\n");
-        exit(1);
-    }
 
     // find student roll from student.txt
     while (fread(&student, sizeof(student), 1, fp))
@@ -364,15 +364,15 @@ void total_student()
     printf("\n <== Total Student Count ==>\n");
     printf(" ----------------------------------\n\n");
 
-    int count = 0;
-
     // Open the file in read binary mode
     fp = fopen("student.txt", "rb");
     if (fp == NULL)
     {
-        printf("Error opening file\n");
+        printf(" Error opening file. you don't have any data. \n");
         exit(1);
     }
+
+    int count = 0;
 
     // Count the number of students in student.txt
     while (fread(&student, sizeof(student), 1, fp))
@@ -392,18 +392,18 @@ void delete_student()
     printf("\n <== Delete Student Using Roll ==>\n");
     printf(" ----------------------------------\n\n");
 
-    int found = 0;
-    int student_roll;
-    printf("\n Enter student roll number: ");
-    scanf("%d", &student_roll);
-
     // Open the original file in read binary mode
     fp = fopen("student.txt", "rb");
     if (fp == NULL)
     {
-        printf("Error opening file\n");
+        printf(" Error opening file. you don't have any data. \n");
         exit(1);
     }
+
+    int found = 0;
+    int student_roll;
+    printf("\n Enter student roll number: ");
+    scanf("%d", &student_roll);
 
     // Open a temporary file in write binary mode
     temp_fp = fopen("temp.txt", "wb");
@@ -501,7 +501,7 @@ void teacher_list()
     fpt = fopen("teacher.txt", "rb+");
     if (fpt == NULL)
     {
-        printf("Error opening file\n");
+        printf(" Error opening file. you don't have any data. \n");
         exit(1);
     }
 
@@ -524,19 +524,19 @@ void update_teacher()
     printf("\n <== Update Teacher Details ==>\n");
     printf(" ----------------------------------\n\n");
 
+    // Open the file in read and write binary mode
+    fpt = fopen("teacher.txt", "rb+");
+    if (fpt == NULL)
+    {
+        printf(" Error opening file. you don't have any data. \n");
+        exit(1);
+    }
+
     int found = 0;
     char teacher_acronym[10];
 
     printf("\n Enter teacher acronym: ");
     scanf("%s", teacher_acronym);
-
-    // Open the file in read and write binary mode
-    fpt = fopen("teacher.txt", "rb+");
-    if (fpt == NULL)
-    {
-        printf("Error opening file\n");
-        exit(1);
-    }
 
     // Find teacher by acronym in teacher.txt
     while (fread(&teacher, sizeof(teacher), 1, fpt))
@@ -604,17 +604,22 @@ void delete_teacher()
     printf("\n <== Delete Teacher Using acronym ==>\n");
     printf(" ----------------------------------\n\n");
 
+    // Open the file in read and write binary mode
+    fpt = fopen("teacher.txt", "rb+");
+    if (fpt == NULL)
+    {
+        printf(" Error opening file. you don't have any data. \n");
+        exit(1);
+    }
+
+    // Open a temporary file in write binary mode
+    temp_fpt = fopen("temp_teacher.txt", "wb");
+
     int found = 0;
     char teacher_acronym[10];
 
     printf("\n Enter teacher acronym: ");
     scanf("%s", teacher_acronym);
-
-    // Open the file in read and write binary mode
-    fpt = fopen("teacher.txt", "rb+");
-
-    // Open a temporary file in write binary mode
-    temp_fpt = fopen("temp_teacher.txt", "wb");
 
     // Copy data from original file to temporary file, skipping the record to delete
     while (fread(&teacher, sizeof(teacher), 1, fpt))
@@ -655,19 +660,19 @@ void find_teacher_by_arc()
     printf("\n <== Find Teacher Details By Acronym ==>\n");
     printf(" ----------------------------------\n\n");
 
+    // Open the file in read and write binary mode
+    fpt = fopen("teacher.txt", "rb+");
+    if (fpt == NULL)
+    {
+        printf(" Error opening file. you don't have any data. \n");
+        exit(1);
+    }
+
     int found = 0;
     char teacher_acronym[10];
 
     printf("\n Enter teacher acronym: ");
     scanf("%s", teacher_acronym);
-
-    // Open the file in read and write binary mode
-    fpt = fopen("teacher.txt", "rb+");
-    if (fpt == NULL)
-    {
-        printf("Error opening file\n");
-        exit(1);
-    }
 
     // Find teacher by acronym in teacher.txt
     while (fread(&teacher, sizeof(teacher), 1, fpt))
@@ -698,19 +703,19 @@ void find_teacher_by_subject_code()
     printf("\n <== Find Teacher Details By Subject Code ==>\n");
     printf(" ----------------------------------\n\n");
 
+    // Open the file in read and write binary mode
+    fpt = fopen("teacher.txt", "rb+");
+    if (fpt == NULL)
+    {
+        printf(" Error opening file. you don't have any data. \n");
+        exit(1);
+    }
+
     int found = 0;
     char subject_code[10];
 
     printf("\n Enter teacher acronym: ");
     scanf("%s", subject_code);
-
-    // Open the file in read and write binary mode
-    fpt = fopen("teacher.txt", "rb+");
-    if (fpt == NULL)
-    {
-        printf("Error opening file\n");
-        exit(1);
-    }
 
     // Find teacher by acronym in teacher.txt
     while (fread(&teacher, sizeof(teacher), 1, fpt))
@@ -741,19 +746,11 @@ void find_student_by_teacher_arc()
     printf("\n <== Find Students Details By Teacher Acronym ==>\n");
     printf(" ----------------------------------\n\n");
 
-    int found = 0;
-    int found_student = 0;
-    char acronym[10];
-    char subject_code[10];
-
-    printf("\n Enter teacher acronym: ");
-    scanf("%s", acronym);
-
     // Open the teacher file in read and write binary mode
     fpt = fopen("teacher.txt", "rb+");
     if (fpt == NULL)
     {
-        printf("Error opening teacher file\n");
+        printf(" Error opening teacher file.  you don't have any data. \n");
         exit(1);
     }
 
@@ -761,10 +758,18 @@ void find_student_by_teacher_arc()
     fp = fopen("student.txt", "rb+");
     if (fp == NULL)
     {
-        printf("Error opening student file\n");
+        printf(" Error opening student file.  you don't have any data.\n");
         fclose(fpt);
         exit(1);
     }
+
+    int found = 0;
+    int found_student = 0;
+    char acronym[10];
+    char subject_code[10];
+
+    printf("\n Enter teacher acronym: ");
+    scanf("%s", acronym);
 
     // Find teacher by acronym in teacher.txt
     while (fread(&teacher, sizeof(teacher), 1, fpt))
